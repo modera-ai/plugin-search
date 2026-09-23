@@ -1,0 +1,32 @@
+{
+  "name": "@modera-plugin/search",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Find files and search project text with ripgrep, glob filters and pagination.",
+  "files": [
+    "plugin.json",
+    "dist",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "modera-plugin-build ."
+  },
+  "devDependencies": {
+    "@vscode/ripgrep": "1.18.0",
+    "@modera/plugin-build": "0.1.0",
+    "@modera/plugin-sdk": "0.1.0"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@vscode/ripgrep": "1.18.0"
+  },
+  "peerDependenciesMeta": {
+    "@vscode/ripgrep": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT"
+}

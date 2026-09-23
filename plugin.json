@@ -1,0 +1,252 @@
+{
+  "apiVersion": 1,
+  "id": "modera.search",
+  "name": "Search",
+  "version": "0.2.0",
+  "description": "文件名、glob、文本和正则检索，支持分页。",
+  "author": "Modera",
+  "category": "search",
+  "main": "dist/index.cjs",
+  "permissions": [
+    "workspace.read",
+    "process.spawn"
+  ],
+  "agentGuidance": "Use filename or text search to locate relevant project evidence before broad file reads. Follow pagination and report exact project-relative paths.",
+  "tools": [
+    {
+      "id": "grep_search",
+      "description": "Search project contents using bundled ripgrep. Literal by default; regex=true enables Rust regular expressions (not PCRE). Supports glob, caseSensitive, offset/limit pagination. Respects ignore files, skips symlinks and generated directories. Sorted by path; pages may shift if files change. Files up to 16 MiB. Results contain path, line and bounded text; narrow searches when truncated. No shell execution.",
+      "locales": {
+        "en": {
+          "title": "Search project content"
+        },
+        "zh-CN": {
+          "description": "使用 ripgrep 检索内容，支持正则、glob、大小写和分页；跳过链接、忽略项及生成目录。"
+        }
+      },
+      "concurrency": "independent-read",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "caseSensitive": {
+            "type": "boolean"
+          },
+          "glob": {
+            "description": "File glob such as **/*.{ts,tsx}",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "limit": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "offset": {
+            "maximum": 10000,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "path": {
+            "description": "Project-relative file or directory, default '.'",
+            "maxLength": 2000,
+            "type": "string"
+          },
+          "pattern": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "regex": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pattern"
+        ],
+        "type": "object"
+      },
+      "presentation": {
+        "icon": "search",
+        "kind": "search",
+        "metrics": [
+          {
+            "format": "count",
+            "label": "处匹配",
+            "labelEn": "matches",
+            "path": "matches"
+          }
+        ],
+        "targets": [
+          "pattern",
+          "path"
+        ],
+        "tone": "violet"
+      },
+      "requiredPermissions": [
+        "workspace.read",
+        "process.spawn"
+      ],
+      "title": "搜索项目内容"
+    },
+    {
+      "id": "glob_files",
+      "description": "Find project files by glob without reading their contents, e.g. **/*.ts or **/package.json. Returns sorted project-relative paths with offset/limit pagination. Respects ignore files and skips symlinks/generated directories. No shell execution.",
+      "locales": {
+        "en": {
+          "title": "Find project files"
+        },
+        "zh-CN": {
+          "description": "按文件名或 glob 查找项目文件，支持分页，无需读取文件内容。"
+        }
+      },
+      "concurrency": "independent-read",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "glob": {
+            "description": "File glob such as **/*.{ts,tsx}",
+            "maxLength": 500,
+            "type": "string"
+          },
+          "limit": {
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "offset": {
+            "maximum": 10000,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "path": {
+            "description": "Project-relative file or directory, default '.'",
+            "maxLength": 2000,
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "presentation": {
+        "icon": "folder",
+        "kind": "search",
+        "metrics": [
+          {
+            "format": "count",
+            "label": "个文件",
+            "labelEn": "files",
+            "path": "files"
+          },
+          {
+            "format": "count",
+            "label": "个文件",
+            "labelEn": "files",
+            "path": "matches"
+          }
+        ],
+        "targets": [
+          "glob",
+          "path"
+        ],
+        "tone": "violet"
+      },
+      "requiredPermissions": [
+        "workspace.read",
+        "process.spawn"
+      ],
+      "title": "查找项目文件"
+    },
+    {
+      "id": "research_project",
+      "description": "Run up to four bounded read-only project searches for one focused objective. Returns exact path/line evidence grouped by query plus explicit uncertainty for no matches, truncation and shortened lines. Use this instead of many broad search/read calls when locating evidence across a large repository. It does not interpret results, modify files, run user commands or grant further tools.",
+      "locales": {
+        "en": {
+          "title": "Research project evidence"
+        },
+        "zh-CN": {
+          "description": "围绕一个目标执行最多四个有界只读检索，按查询返回文件、行号、证据片段及无结果、截断等不确定项。"
+        }
+      },
+      "concurrency": "independent-read",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {
+          "objective": {
+            "maxLength": 500,
+            "minLength": 1,
+            "type": "string"
+          },
+          "queries": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "caseSensitive": {
+                  "type": "boolean"
+                },
+                "glob": {
+                  "description": "File glob such as **/*.{ts,tsx}",
+                  "maxLength": 500,
+                  "type": "string"
+                },
+                "path": {
+                  "description": "Project-relative file or directory, default '.'",
+                  "maxLength": 2000,
+                  "type": "string"
+                },
+                "pattern": {
+                  "maxLength": 1000,
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "regex": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "pattern"
+              ],
+              "type": "object"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "type": "array"
+          }
+        },
+        "required": [
+          "objective",
+          "queries"
+        ],
+        "type": "object"
+      },
+      "presentation": {
+        "icon": "search",
+        "kind": "search",
+        "metrics": [
+          {
+            "format": "count",
+            "label": "处匹配",
+            "labelEn": "matches",
+            "path": "matches"
+          }
+        ],
+        "targets": [
+          "pattern",
+          "path"
+        ],
+        "tone": "violet"
+      },
+      "requiredPermissions": [
+        "workspace.read",
+        "process.spawn"
+      ],
+      "title": "专项检索项目证据"
+    }
+  ],
+  "locales": {
+    "en": {
+      "description": "Find files and search text using ripgrep, glob filters and pagination."
+    },
+    "zh-CN": {
+      "name": "文件与内容搜索"
+    }
+  }
+}
