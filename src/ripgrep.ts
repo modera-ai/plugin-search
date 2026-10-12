@@ -1,5 +1,6 @@
-import { spawn } from "node:child_process";
-import { relative, isAbsolute } from "node:path";
+import { isRemotePath, remotePath, workspaceUri } from "@modera/plugin-sdk/workspace-path";
+import { spawn } from "@modera/plugin-sdk/workspace-process";
+import { relative, isAbsolute } from "@modera/plugin-sdk/workspace-path";
 import type { ToolContext } from "@modera/plugin-sdk";
 import { readTarget } from "@modera/plugin-sdk";
 
@@ -74,7 +75,7 @@ export async function searchProject(
     hasMore: boolean;
     nextOffset?: number;
   }>((resolve, reject) => {
-    const child = spawn(rgPath, args, {
+    const child = spawn(isRemotePath(root) ? "rg" : rgPath, args, {
       cwd: root,
       windowsHide: true,
       shell: false,
@@ -121,7 +122,7 @@ export async function searchProject(
           lineTruncated: text.length > 500,
         };
       }
-      const local = relative(root, path).replaceAll("\\", "/");
+      const local = relative(root, isRemotePath(root) && path.startsWith("/") ? workspaceUri(remotePath(root).profileId, path) : path).replaceAll("\\", "/");
       if (local.startsWith("../") || isAbsolute(local))
         throw new Error("Search result outside project");
       if (seen++ < offset) return;
