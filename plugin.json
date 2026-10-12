@@ -4,7 +4,7 @@
   "activationScope": "scoped",
   "id": "modera.search",
   "name": "Search",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "文件名、glob、文本和正则检索，支持分页。",
   "author": "Modera",
   "category": "search",
